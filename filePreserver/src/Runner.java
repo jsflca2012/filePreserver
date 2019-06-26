@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
@@ -29,13 +30,36 @@ public class Runner {
 				} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
 						| UnsupportedLookAndFeelException e) {
 				}
-				chooseFile();
+				//chooseFile();
+				directorySelection();
 			}
 		});
 	}
 
 	public static void main(String[] args) {
 		Runner run = new Runner();
+	}
+	
+	public void directorySelection() {
+		JFileChooser chooser = new JFileChooser();
+		chooser.setCurrentDirectory(new java.io.File("."));
+		chooser.setDialogTitle("choosertitle");
+		chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		chooser.setAcceptAllFileFilterUsed(false);
+
+		if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+			System.out.println("getCurrentDirectory(): " + chooser.getCurrentDirectory());
+			System.out.println("getSelectedFile() : " + chooser.getSelectedFile());
+			input=chooser.getSelectedFile();
+			extensions.addAll(Arrays.asList("mkv","mp4","mpg","avi","wmv","m4v","mov"));
+			scanDir(input);
+			System.out.println(output);
+			fileWriter();
+		} else {
+			System.out.println("No Selection ");
+			JOptionPane.showMessageDialog(null, "No selection.");
+			directorySelection();
+		}
 	}
 
 	public void chooseFile() {
@@ -55,13 +79,14 @@ public class Runner {
 
 	public void scanDir(File fileName) {
 		File[] fList = fileName.listFiles();
-		for (File file : fList) {
-			if (file.isFile()) {
-				System.out.println(file.getName().substring(file.getName().lastIndexOf(".")+1));
-				checkExtension(file);	
+		//for (File file : fList) {
+		for(int x=0; x<fList.length-1;x++) {
+			if (fList[x]!=null&&fList[x].isFile()) {
+				System.out.println(fList[x].getName().substring(fList[x].getName().lastIndexOf(".")+1));
+				checkExtension(fList[x]);	
 			}
-			if (file.isDirectory()) {
-				scanDir(file);
+			if (fList[x].isDirectory()) {
+				scanDir(fList[x]);
 			}
 		}
 	}
@@ -79,7 +104,7 @@ public class Runner {
 		try {
 			new File(input.getParent() + "/" + "data.txt").delete();
 			// Whatever the file path is.
-			File statText = new File(input.getParent() + "/" + "data.txt");
+			File statText = new File(input.getPath() + "/" + "data.txt");
 			FileOutputStream is = new FileOutputStream(statText);
 			OutputStreamWriter osw = new OutputStreamWriter(is);
 			Writer w = new BufferedWriter(osw);
@@ -92,9 +117,8 @@ public class Runner {
 			System.err.println("Problem writing to the file data.txt");
 		}
 		Desktop desktop = Desktop.getDesktop();
-		;
 		try {
-			desktop.open(new File(input.getParent() + "/" + "data.txt"));
+			desktop.open(new File(input.getPath() + "/" + "data.txt"));
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
