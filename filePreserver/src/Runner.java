@@ -7,19 +7,28 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 
 import javax.swing.JFileChooser;
+import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 public class Runner {
 	File input;
 	ArrayList<String> output = new ArrayList<String>();
-	String[] extensions = { "mkv", "mp4", "mpg", "wmv" };
+	ArrayList<String> extensions = new ArrayList<String>();
+
 
 	public Runner() {
 		EventQueue.invokeLater(new Runnable() {
 			@Override
 			public void run() {
+				try {
+					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+				} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
+						| UnsupportedLookAndFeelException e) {
+				}
 				chooseFile();
 			}
 		});
@@ -38,6 +47,7 @@ public class Runner {
 			System.out.println("Selected file: " + input.getAbsolutePath());
 
 		}
+		extensions.addAll(Arrays.asList("mkv","mp4","mpg","avi","wmv","m4v","mov"));
 		scanDir(input.getParentFile());
 		System.out.println(output);
 		fileWriter();
@@ -47,7 +57,8 @@ public class Runner {
 		File[] fList = fileName.listFiles();
 		for (File file : fList) {
 			if (file.isFile()) {
-				checkExtension(file);
+				System.out.println(file.getName().substring(file.getName().lastIndexOf(".")+1));
+				checkExtension(file);	
 			}
 			if (file.isDirectory()) {
 				scanDir(file);
@@ -56,11 +67,11 @@ public class Runner {
 	}
 
 	public void checkExtension(File file) {
-		for (int x = 0; x < extensions.length; x++) {
-			if (file.getName().substring(file.getName().lastIndexOf(".") + 1) == extensions[x]
-					&& file.getName() != null) {
+		
+			String fileName=file.getName();
+			if (extensions.indexOf(file.getName().substring(file.getName().lastIndexOf(".")+1))>=0) {
 				output.add(file.getName());
-			}
+			
 		}
 	}
 
